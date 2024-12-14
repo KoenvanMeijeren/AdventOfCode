@@ -7,15 +7,9 @@ This is a project to solve the Advent of Code puzzles using PHP.
 Read all about Tempest in [the docs](https://github.com/tempestphp/tempest-docs/blob/master/01-getting-started.md).
 
 ## Installation
-If you want to start a new Tempest project, you can use tempest/app as the starting point. Use composer create-project to start:
 
 ```bash
-composer create-project tempest/app my-app --stability alpha
-cd my-app
-```
-The project scaffold includes a basic frontend setup including Tailwind:
-
-```bash
+composer install
 npm run dev
 ```
 
