@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace App\web;
 
 use Tempest\Http\Get;
 
@@ -15,6 +15,6 @@ final readonly class HomeController
     #[Get('/')]
     public function __invoke(): View
     {
-        return view('home.view.php');
+        return view('web/home.view.php');
     }
 }

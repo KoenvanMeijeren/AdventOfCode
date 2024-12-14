@@ -19,3 +19,11 @@ You can access your app by using PHP's built-in server.
 ./tempest serve
 PHP 8.3.3 Development Server (http://localhost:8000) started
 ```
+
+## Running the puzzles
+
+To run the puzzles, you can use the following command:
+
+```bash
+./tempest run aoc:all
+```

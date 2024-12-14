@@ -1,7 +1,8 @@
 {
     "name": "tempest/app",
     "require": {
-        "tempest/framework": "v1.0.0-alpha.4"
+        "tempest/framework": "v1.0.0-alpha.4",
+        "tempest/console": "1.0-alpha.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.2",
