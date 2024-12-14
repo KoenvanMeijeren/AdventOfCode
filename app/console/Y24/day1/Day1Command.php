@@ -1,6 +1,6 @@
 <?php
 
-namespace  App\console\Y24;
+namespace  App\console\Y24\day1;
 
 use Tempest\Console\Console;
 use Tempest\Console\ConsoleCommand;
