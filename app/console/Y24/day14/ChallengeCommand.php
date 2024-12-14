@@ -24,7 +24,6 @@ final readonly class ChallengeCommand {
     )]
     public function __invoke(): void
     {
-        ray()->clearAll();
         $this->console->writeln('Running AoC Day 14 of 2024...');
 
         $input = file_get_contents(__DIR__ . '/test-input.txt');
