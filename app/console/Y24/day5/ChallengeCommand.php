@@ -60,8 +60,6 @@ final readonly class ChallengeCommand {
             $result2PagesSorted[] = $this->sortPagesBasedOnRule($pages, $lineRules);
         }
 
-        ray($result2PagesSorted, $lineRules);
-
         $resultPages = array_filter($resultPages, fn ($page) => !empty($page));
         foreach ($resultPages as $pages) {
             $pagesCount = count($pages);
