@@ -31,12 +31,30 @@ final readonly class ChallengeCommand {
         $lines = explode("\n", $input);
 
         $players = [];
+        $playersStrings = [];
         foreach ($lines as $line) {
-            $players[] = Player::fromString($line);
+            $player = Player::fromString($line);
+            $players[] = $player;
+            $playersStrings[] = $player->toString();
         }
 
+        $this->console->writeln();
+        $this->console->writeln('Players: ');
+        foreach ($playersStrings as $playerString) {
+            $this->console->writeln($playerString);
+        }
+
+        $this->console->writeln();
+        $this->console->writeln('Game: ');
         $this->game->init($players);
         $this->game->render();
+
+        for ($i = 0; $i < 100; $i++) {
+            $this->console->writeln();
+            $this->console->writeln('Tick: ' . $i + 1);
+            $this->game->tick();
+            $this->game->render();
+        }
     }
 
 }

@@ -16,8 +16,8 @@ final class Game {
      */
     public function __construct(
         private readonly Console $console,
-        private readonly int $width = 11,
-        private readonly int $height = 7,
+        private int $width = 11,
+        private int $height = 7,
         private array $grid = [],
         private array $players = [],
     ) {}
@@ -25,15 +25,32 @@ final class Game {
     /**
      * @param Player[] $players
      */
-    public function init(array $players): void
+    public function init(array $players, int $width = 11, int $height = 7): void
     {
+        $this->width = $width;
+        $this->height = $height;
         $this->grid = array_fill(0, $this->height, array_fill(0, $this->width, 0));
         $this->players = $players;
 
         foreach ($this->players as $player) {
-            $this->grid[$player->pRow][$player->pCol] ??= 0;
-            $this->grid[$player->pRow][$player->pCol]++;
+            $this->grid[$player->position->row][$player->position->col] ??= 0;
+            $this->grid[$player->position->row][$player->position->col]++;
         }
+    }
+
+    public function tick(): void
+    {
+        $newGrid = array_fill(0, $this->height, array_fill(0, $this->width, 0));
+        $maxRow = $this->height - 1;
+        $maxCol = $this->width - 1;
+
+        foreach ($this->players as $player) {
+            $this->grid[$player->position->row][$player->position->col]--;
+            $player->move($maxRow, $maxCol);
+            $newGrid[$player->position->row][$player->position->col]++;
+        }
+
+        $this->grid = $newGrid;
     }
 
     public function render(): void
