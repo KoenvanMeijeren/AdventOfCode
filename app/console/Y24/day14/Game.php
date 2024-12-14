@@ -65,4 +65,78 @@ final class Game {
         }
     }
 
+    public function renderSafestAreaGrid(): void
+    {
+        $safestAreasGrid = $this->grid;
+        $heightCenter = intdiv($this->height, 2);
+        $widthCenter = intdiv($this->width, 2);
+
+        for ($row = 0; $row < $this->height; $row++) {
+            if ($row === $heightCenter) {
+                $safestAreasGrid[$row] = array_fill(0, $this->width, ' ');
+            }
+
+            for ($col = 0; $col < $this->width; $col++) {
+                if ($col === $widthCenter) {
+                    $safestAreasGrid[$row][$col] = ' ';
+                }
+            }
+        }
+
+        $robotsInQuadrants = [0, 0, 0, 0];
+        for ($row = 0; $row < $this->height; $row++) {
+            if ($row === $heightCenter) {
+                continue;
+            }
+
+            $isUpperQuadrant = $row > $heightCenter;
+
+            for ($col = 0; $col < $this->width; $col++) {
+                if ($col === $widthCenter) {
+                    continue;
+                }
+
+                $gridValue = $this->grid[$row][$col];
+                $isLeftQuadrant = $col > $widthCenter;
+
+                if (!is_numeric($gridValue)) {
+                    continue;
+                }
+
+                $quadrantRowIndex = 'upper';
+                if (!$isUpperQuadrant) {
+                    $quadrantRowIndex = 'lower';
+                }
+
+                $quadrantColIndex = 'left';
+                if (!$isLeftQuadrant) {
+                    $quadrantColIndex = 'right';
+                }
+
+                $quadrantIndex = match ($quadrantRowIndex . $quadrantColIndex) {
+                    'upperleft' => 0,
+                    'upperright' => 1,
+                    'lowerleft' => 2,
+                    'lowerright' => 3,
+                };
+
+                $robotsInQuadrants[$quadrantIndex] ??= 0;
+                $robotsInQuadrants[$quadrantIndex] += $gridValue;
+            }
+        }
+
+        for ($row = 0; $row < $this->height; $row++) {
+            for ($col = 0; $col < $this->width; $col++) {
+                $gridValue = $safestAreasGrid[$row][$col];
+                $this->console->write($gridValue === 0 ? '.' : $gridValue);
+            }
+
+            $this->console->writeln();
+        }
+
+        $result = array_product($robotsInQuadrants);
+        $this->console->writeln();
+        $this->console->writeln('Result: ' . $result);
+    }
+
 }

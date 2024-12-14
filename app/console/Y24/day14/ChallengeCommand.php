@@ -26,7 +26,7 @@ final readonly class ChallengeCommand {
     {
         $this->console->writeln('Running AoC Day 14 of 2024...');
 
-        $input = file_get_contents(__DIR__ . '/test-input.txt');
+        $input = file_get_contents(__DIR__ . '/input.txt');
         $lines = explode("\n", $input);
 
         $players = [];
@@ -45,7 +45,7 @@ final readonly class ChallengeCommand {
 
         $this->console->writeln();
         $this->console->writeln('Game: ');
-        $this->game->init($players);
+        $this->game->init($players, 101, 103);
         $this->game->render();
 
         for ($i = 0; $i < 100; $i++) {
@@ -54,6 +54,11 @@ final readonly class ChallengeCommand {
             $this->game->tick();
             $this->game->render();
         }
+
+        $this->console->writeln();
+        $this->console->writeln('Game Over!');
+        $this->console->writeln('Safest areas:');
+        $this->game->renderSafestAreaGrid();
     }
 
 }
