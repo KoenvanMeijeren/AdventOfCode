@@ -8,7 +8,7 @@ use Tempest\Console\ConsoleCommand;
 /**
  * Provides the Day1Command.
  */
-final readonly class Day1Command {
+final readonly class ChallengeCommand {
 
     public function __construct(
         private Console $console,
