@@ -52,13 +52,31 @@ final readonly class ChallengeCommand {
             $this->console->writeln();
             $this->console->writeln('Tick: ' . $i + 1);
             $this->game->tick();
-            $this->game->render();
         }
 
         $this->console->writeln();
         $this->console->writeln('Game Over!');
         $this->console->writeln('Safest areas:');
         $this->game->renderSafestAreaGrid();
+
+        // other idea: save 5x5 areas
+        // Every iteration, I did a convolution on the tilemap to try and find a region of e.g. 5x5 of all robots.
+        // If I found such a region, then it's highly likely part of the tree. With a kernel size of 5 (5x5 region)
+
+        // brute force
+        $this->console->writeln();
+        $this->console->writeln('Part 2: Just render the game for 10_000 ticks... and find the result manually');
+        for ($i = 0; $i < 10_000; $i++) {
+            $this->game->tick();
+            $this->console->writeln();
+            $this->console->writeln('Tick: ' . $i + 1);
+            $this->game->render();
+        }
+
+        // don't forget to add 100 seconds to your answer, because we're running part 2 after part 1
+        $this->console->writeln();
+        $this->console->writeln('Part 2');
+        $this->console->writeln('Answer: x + 100');
     }
 
 }
