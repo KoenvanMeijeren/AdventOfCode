@@ -42,59 +42,26 @@ final readonly class ChallengeCommand {
         $this->console->writeln('Result part 2: ' . $resultPart2);
     }
 
-    private function calculateMulFunctions(string $line): int {
+    private function calculateMulFunctions(string $input): int {
         $result = 0;
-        $matches = [];
-        $regex = '/mul\(\d+,\d+\)/';
-        preg_match_all($regex, $line, $matches);
-
-        foreach ($matches[0] as $match) {
-            $numbers = explode(',', substr($match, 4, -1));
-            $result += $numbers[0] * $numbers[1];
-        }
-
-        return $result;
-    }
-
-    private function calculateEnabledMulFunctions(string $line): int {
-        $result = 0;
-        $validMuls = $this->getValidMulFunctions($line);
-        foreach ($validMuls as $mul) {
-            $numbers = explode(',', substr($mul, 4, -1));
-            $result += $numbers[0] * $numbers[1];
-        }
-
-        return $result;
-    }
-
-    private function getValidMulFunctions(string $line): array {
-        $matches = [];
-        $regex = '/(?:do\(\)|don\'t\(\))|mul\(\d+,\d+\)/';
-        preg_match_all($regex, $line, $matches);
-
-        $instructions = $matches[0];
-        $isMulEnabled = true;
-
-        $result = [];
-        $this->console->writeln();
-        foreach ($instructions as $instruction) {
-            $this->console->writeln($instruction);
-            if (str_contains($instruction, 'do()')) {
-                $isMulEnabled = true;
+        $regex = "/mul\((\d{1,3}),(\d{1,3})\)/";
+        preg_match_all($regex, $input, $matches);
+        foreach ($matches[0] as $index => $match) {
+            $left = $matches[1][$index];
+            $right = $matches[2][$index];
+            if (!is_numeric($left) || !is_numeric($right)) {
                 continue;
             }
 
-            if (str_contains($instruction, "don't()")) {
-                $isMulEnabled = false;
-                continue;
-            }
-
-            if ($isMulEnabled) {
-                $result[] = $instruction;
-            }
+            $result += $left * $right;
         }
-
         return $result;
+    }
+
+    private function calculateEnabledMulFunctions(string $input): int {
+        $regex = "/don't\(\).*?do\(\)|don't\(\).*/";
+        $enabledMulFunctions = preg_replace($regex, "", $input);
+        return $this->calculateMulFunctions($enabledMulFunctions);
     }
 
 }
