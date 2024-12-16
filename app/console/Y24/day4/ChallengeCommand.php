@@ -31,8 +31,8 @@ final readonly class ChallengeCommand {
     private function ownTry(array $lines): void {
         $this->console->writeln();
         $this->console->writeln('Counting words in lines...');
-        $result = $this->countWordInLine($lines);
-        $resultTry2 = $this->searchAndCountWordInLines($lines);
+        $result = $this->searchAndCountWordInLinesTry1($lines);
+        $resultTry2 = $this->searchAndCountWordInLinesTry2($lines);
         $resultPart2 = $this->searchAndCountWordInLinesPart2($lines);
 
         $this->console->writeln();
@@ -41,7 +41,7 @@ final readonly class ChallengeCommand {
         $this->console->writeln('Result part 2: ' . $resultPart2);
     }
 
-    private function searchAndCountWordInLines(array $lines): int {
+    private function searchAndCountWordInLinesTry2(array $lines): int {
         $result = 0;
 
         $directions = [
@@ -141,7 +141,7 @@ final readonly class ChallengeCommand {
         return $lineWord === $searchWord;
     }
 
-    private function countWordInLine(array $lines): int {
+    private function searchAndCountWordInLinesTry1(array $lines): int {
         $result = 0;
 
         // Find all XMAS occurrences in the line
@@ -242,11 +242,11 @@ final readonly class ChallengeCommand {
                 for ($colIndex = 0; $colIndex < $colCount; $colIndex++) {
                     $char = $lines[$rowIndex][$colIndex] ?? '';
                     if ($char === 'X') {
-                        $char = $lines[$rowIndex + 1][$colIndex + 1] ?? '';
+                        $char = $lines[$rowIndex + 1][$colIndex - 1] ?? '';
                         if ($char === 'M') {
-                            $char = $lines[$rowIndex + 2][$colIndex + 2] ?? '';
+                            $char = $lines[$rowIndex + 2][$colIndex - 2] ?? '';
                             if ($char === 'A') {
-                                $char = $lines[$rowIndex + 3][$colIndex + 3] ?? '';
+                                $char = $lines[$rowIndex + 3][$colIndex - 3] ?? '';
                                 if ($char === 'S') {
                                     $result++;
                                 }
@@ -282,11 +282,11 @@ final readonly class ChallengeCommand {
                 for ($colIndex = 0; $colIndex < $colCount; $colIndex++) {
                     $char = $lines[$rowIndex][$colIndex] ?? '';
                     if ($char === 'X') {
-                        $char = $lines[$rowIndex - 1][$colIndex + 1] ?? '';
+                        $char = $lines[$rowIndex - 1][$colIndex - 1] ?? '';
                         if ($char === 'M') {
-                            $char = $lines[$rowIndex - 2][$colIndex + 2] ?? '';
+                            $char = $lines[$rowIndex - 2][$colIndex - 2] ?? '';
                             if ($char === 'A') {
-                                $char = $lines[$rowIndex - 3][$colIndex + 3] ?? '';
+                                $char = $lines[$rowIndex - 3][$colIndex - 3] ?? '';
                                 if ($char === 'S') {
                                     $result++;
                                 }
