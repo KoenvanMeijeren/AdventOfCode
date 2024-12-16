@@ -27,17 +27,17 @@ final readonly class ChallengeCommand {
 
         $this->console->writeln('Result test: ' .  $this->blink($testInput)[0]);
         [$result, $count] = $this->blink('125 17');
-        $this->console->writeln('Count: ' . $count . ' Result initial arrangement: ' .  $result);
+        $this->console->writeln('Count: ' . $count . ' Result initial arrangement: ' .  implode(' ', $result));
         [$result, $count] = $this->blink($result);
-        $this->console->writeln('Count: ' . $count . ' Result after 2 blinks: ' .  $result);
+        $this->console->writeln('Count: ' . $count . ' Result after 2 blinks: ' .  implode(' ', $result));
         [$result, $count] = $this->blink($result);
-        $this->console->writeln('Count: ' . $count . ' Result after 3 blinks: ' .  $result);
+        $this->console->writeln('Count: ' . $count . ' Result after 3 blinks: ' .  implode(' ', $result));
         [$result, $count] = $this->blink($result);
-        $this->console->writeln('Count: ' . $count . ' Result after 4 blinks: ' .  $result);
+        $this->console->writeln('Count: ' . $count . ' Result after 4 blinks: ' .  implode(' ', $result));
         [$result, $count] = $this->blink($result);
-        $this->console->writeln('Count: ' . $count . ' Result after 5 blinks: ' .  $result);
+        $this->console->writeln('Count: ' . $count . ' Result after 5 blinks: ' .  implode(' ', $result));
         [$result, $count] = $this->blink($result);
-        $this->console->writeln('Count: ' . $count . ' Result after 6 blinks: ' .  $result);
+        $this->console->writeln('Count: ' . $count . ' Result after 6 blinks: ' .  implode(' ', $result));
 
         $result = $input;
         $count = 0;
@@ -48,19 +48,35 @@ final readonly class ChallengeCommand {
         }
 
         $this->console->writeln('Count: ' . $count . ' result after 25 blinks ');
+
+        $result = $input;
+        $count = 0;
+        $this->console->writeln();
+        for ($i = 0; $i < 40; $i++) {
+            $this->console->writeln('Blink ' . $i);
+            [$result, $count] = $this->blink($result);
+        }
+
+        $this->console->writeln('Count: ' . $count . ' result after 75 blinks ');
     }
 
-    private function blink(string $input): array
+    private function blink(string|array $input): array
     {
-        $digitGroups = explode(" ", $input);
+        $digitGroups = $input;
+        if (is_string($digitGroups)) {
+            $digitGroups = explode(" ", $input);
+        }
+
         $result = [];
         foreach ($digitGroups as  $digitGroup) {
             $newResult = $this->blinkDigit((int) $digitGroup);
-            $result = array_merge($newResult, $result);
+            $newResult = array_reverse($newResult);
+            foreach ($newResult as $newDigit) {
+                $result[] = $newDigit;
+            }
         }
 
-        $result = array_reverse($result);
-        return [implode(" ", $result), count($result)];
+        return [$result, count($result)];
     }
 
     private function blinkDigit(int $input): array
