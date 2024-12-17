@@ -42,7 +42,7 @@ final readonly class ChallengeCommand {
         $this->console->writeln();
         $this->console->writeln(sprintf('Number of equations: %d', count($lines)));
         $this->console->writeln(sprintf('Number of correct equations: %d', $correctEquations));
-        $this->console->writeln(sprintf('Number of equations that could possibly be true: %d', $result));
+        $this->console->writeln(sprintf('Sum of correct equations: %d', $result));
     }
 
     private function calculateNumbersUntilItMatchesResult(int $expectedResult, array $numbers): int
