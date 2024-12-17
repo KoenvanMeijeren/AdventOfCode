@@ -22,7 +22,7 @@ final readonly class ChallengeCommand {
     {
         $this->console->writeln('Running AoC Day 7 of 2024...');
 
-        $input = file_get_contents(__DIR__ . '/test-input.txt');
+        $input = file_get_contents(__DIR__ . '/input.txt');
         $lines = explode("\n", $input);
 
         $result = 0;
@@ -67,22 +67,26 @@ final readonly class ChallengeCommand {
 
         // Extract the first next number.
         $nextNumber = array_shift($remainingNumbers);
+        if (is_numeric($nextNumber)) {
+            $nextNumber = (int) $nextNumber;
+        }
 
         // Try to add the numbers.
-        $this->console->writeln(sprintf('Adding %d + %d', $nextNumber, $equationResult));
         $sum = $this->calculateNumbersToResult($expectedResult, $nextNumber + $equationResult, $remainingNumbers);
         if ($sum === $expectedResult) {
             return $sum;
         }
 
         // Try to multiply the numbers.
-        $this->console->writeln(sprintf('Multiplying %d * %d', $nextNumber, $equationResult));
         $product = $this->calculateNumbersToResult($expectedResult, $nextNumber * $equationResult, $remainingNumbers);
         if ($product === $expectedResult) {
             return $product;
         }
 
-        // Did not find a result.
-        return -1;
+        // Concatenate the numbers for part 2.
+        // Return -1 for part 1.
+        $concatenatedNumber = (int) "{$equationResult}{$nextNumber}";
+        return $this->calculateNumbersToResult($expectedResult, $concatenatedNumber, $remainingNumbers);
     }
+
 }
