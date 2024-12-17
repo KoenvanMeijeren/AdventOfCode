@@ -32,7 +32,7 @@ final readonly class ChallengeCommand {
             $this->console->writeln($line);
 
             [$expectedResult, $numbers] = explode(': ', $line);
-            $newResult = $this->calculateNumbersUntilItMatchesResult((int) $expectedResult, explode(' ', $numbers));
+            $newResult = $this->getEquationResultIfCorrect((int) $expectedResult, explode(' ', $numbers));
             if ($newResult > 0) {
                 $correctEquations++;
                 $result += $newResult;
@@ -45,7 +45,7 @@ final readonly class ChallengeCommand {
         $this->console->writeln(sprintf('Sum of correct equations: %d', $result));
     }
 
-    private function calculateNumbersUntilItMatchesResult(int $expectedResult, array $numbers): int
+    private function getEquationResultIfCorrect(int $expectedResult, array $numbers): int
     {
         $calculatedResult = $this->calculateNumbersToResult($expectedResult, 0, $numbers);
 
