@@ -5,6 +5,8 @@ namespace  App\console\Y24\day11;
 use Tempest\Console\Console;
 use Tempest\Console\ConsoleCommand;
 
+ini_set('memory_limit', '512M');
+
 /**
  * Provides the Day1Command.
  */
@@ -25,7 +27,7 @@ final readonly class ChallengeCommand {
         $testInput = file_get_contents(__DIR__ . '/test-input.txt');
         $input = file_get_contents(__DIR__ . '/input.txt');
 
-        $this->console->writeln('Result test: ' .  $this->blink($testInput)[0]);
+        $this->console->writeln('Result test: ' .  implode(' ', $this->blink($testInput)[0]));
         [$result, $count] = $this->blink('125 17');
         $this->console->writeln('Count: ' . $count . ' Result initial arrangement: ' .  implode(' ', $result));
         [$result, $count] = $this->blink($result);
@@ -70,7 +72,6 @@ final readonly class ChallengeCommand {
         $result = [];
         foreach ($digitGroups as  $digitGroup) {
             $newResult = $this->blinkDigit((int) $digitGroup);
-            $newResult = array_reverse($newResult);
             foreach ($newResult as $newDigit) {
                 $result[] = $newDigit;
             }
@@ -86,7 +87,7 @@ final readonly class ChallengeCommand {
             return [1];
         }
 
-        //If the stone is engraved with a number that has an even number of digits, it is replaced by two stones.
+        // If the stone is engraved with a number that has an even number of digits, it is replaced by two stones.
         // The left half of the digits are engraved on the new left stone, and the right half of
         // the digits are engraved on the new right stone.
         // (The new numbers don't keep extra leading zeroes: 1000 would become stones 10 and 0.)
@@ -95,7 +96,7 @@ final readonly class ChallengeCommand {
         if ($inputLength % 2 === 0) {
             $left = substr($inputStr, 0, $inputLength / 2);
             $right = substr($inputStr, $inputLength / 2);
-            return [(int) $right, (int) $left];
+            return [(int) $left, (int) $right];
         }
 
         //If none of the other rules apply, the stone is replaced by a new stone;
