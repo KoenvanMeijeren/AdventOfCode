@@ -10,10 +10,11 @@ ini_set('memory_limit', '1G');
 /**
  * Provides the ChallengeCommand.
  */
-final readonly class ChallengeCommand {
+final class ChallengeCommand {
 
     public function __construct(
-        private Console $console,
+        private readonly Console $console,
+        private array $cache = []
     ) {}
 
     #[ConsoleCommand(
@@ -51,41 +52,54 @@ final readonly class ChallengeCommand {
 
         $this->console->writeln('Count: ' . $count . ' result after 25 blinks ');
 
-        $result = $input;
+//        $result = $input;
+//        $count = 0;
+//        $this->console->writeln();
+//        $part1BlinksMax = 35;
+//        for ($i = 0; $i < $part1BlinksMax; $i++) {
+//            $this->console->writeln('Blink ' . $i);
+//            [$result, $count] = $this->blink($result);
+//        }
+//
+//        $this->console->writeln('Count: ' . $count . ' result after ' . $part1BlinksMax . ' blinks ');
+//
+//        $this->console->writeln();
+//        $this->console->writeln('Optimized version');
+//        $result = $this->blinkOptimized('125 17');
+//        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' Result initial arrangement: ' .  $result);
+//        $result = $this->blinkOptimized($result);
+//        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' Result after 2 blinks: ' .  $result);
+//        $result = $this->blinkOptimized($result);
+//        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' Result after 3 blinks: ' .  $result);
+//        $result = $this->blinkOptimized($result);
+//        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' Result after 4 blinks: ' .  $result);
+//        $result = $this->blinkOptimized($result);
+//        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' Result after 5 blinks: ' .  $result);
+//        $result = $this->blinkOptimized($result);
+//        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' Result after 6 blinks: ' .  $result);
+//
+//        $result = $input;
+//        $this->console->writeln();
+//        $this->console->writeln('Optimized version part 1 - With string manipulation');
+//        $part2Blinks = 35;
+//        for ($i = 0; $i < $part2Blinks; $i++) {
+//            $this->console->writeln('Blink ' . $i);
+//            $result = $this->blinkOptimized($result);
+//        }
+//
+//        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' result after ' . $part2Blinks . ' blinks ');
+
+        $this->console->writeln();
+        $this->console->writeln('Optimized version part 2 - With recursion');
+        $part3Blinks = 35;
         $count = 0;
-        $this->console->writeln();
-        $part1BlinksMax = 35;
-        for ($i = 0; $i < $part1BlinksMax; $i++) {
-            $this->console->writeln('Blink ' . $i);
-            [$result, $count] = $this->blink($result);
-        }
-
-        $this->console->writeln('Count: ' . $count . ' result after ' . $part1BlinksMax . ' blinks ');
-
-        $this->console->writeln();
-        $this->console->writeln('Optimized version');
-        $result = $this->blinkOptimized('125 17');
-        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' Result initial arrangement: ' .  $result);
-        $result = $this->blinkOptimized($result);
-        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' Result after 2 blinks: ' .  $result);
-        $result = $this->blinkOptimized($result);
-        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' Result after 3 blinks: ' .  $result);
-        $result = $this->blinkOptimized($result);
-        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' Result after 4 blinks: ' .  $result);
-        $result = $this->blinkOptimized($result);
-        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' Result after 5 blinks: ' .  $result);
-        $result = $this->blinkOptimized($result);
-        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' Result after 6 blinks: ' .  $result);
-
         $result = $input;
-        $this->console->writeln();
-        $part2Blinks = 40;
-        for ($i = 0; $i < $part2Blinks; $i++) {
+        for ($i = 0; $i < $part3Blinks; $i++) {
             $this->console->writeln('Blink ' . $i);
-            $result = $this->blinkOptimized($result);
+            $result = $this->blinkOptimizedRecursive($result);
         }
 
-        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' result after ' . $part2Blinks . ' blinks ');
+        $this->console->writeln('Count: ' . $count . ' result after ' . $part3Blinks . ' blinks ');
     }
 
     private function blink(string|array $input): array
@@ -171,8 +185,15 @@ final readonly class ChallengeCommand {
 
     private function blinkOptimizedRecursive(string $input, string $result = '', int $index = 0): string
     {
+        // Check if the result for the given input is already cached
+        if (isset($this->cache[$input])) {
+            return $this->cache[$input];
+        }
+
         // Base case: If we reach the end of the string, return the result.
         if ($index >= strlen($input)) {
+            // Cache the result before returning
+            $this->cache[$input] = $result;
             return $result;
         }
 
@@ -212,11 +233,11 @@ final readonly class ChallengeCommand {
         // The left half of the digits are engraved on the new left stone, and the right half of
         // the digits are engraved on the new right stone.
         // (The new numbers don't keep extra leading zeroes: 1000 would become stones 10 and 0.)
-        $inputStr = (string) $input;
-        $inputLength = strlen($inputStr);
-        if ($inputLength % 2 === 0) {
-            $left = (int) substr($inputStr, 0, $inputLength / 2);
-            $right = (int) substr($inputStr, $inputLength / 2);
+        $digits = (int) log10($input) + 1;
+        if ($digits % 2 === 0) {
+            $divisor = 10 ** ($digits / 2); // Calculate the divisor for splitting
+            $left = (int) ($input / $divisor);
+            $right = $input % $divisor;
             return $left . ' ' . $right;
         }
 
