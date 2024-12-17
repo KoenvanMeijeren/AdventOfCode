@@ -22,7 +22,7 @@ final readonly class ChallengeCommand {
     {
         $this->console->writeln('Running AoC Day 7 of 2024...');
 
-        $input = file_get_contents(__DIR__ . '/input.txt');
+        $input = file_get_contents(__DIR__ . '/test-input.txt');
         $lines = explode("\n", $input);
 
         $result = 0;
@@ -57,29 +57,27 @@ final readonly class ChallengeCommand {
         return 0;
     }
 
-    private function calculateNumbersToResult(int $expectedResult, int $sumResult, array $numbers): int
+    private function calculateNumbersToResult(int $expectedResult, int $equationResult, array $remainingNumbers): int
     {
-        $this->console->writeln(sprintf('Result: %d, remaining numbers %s', $sumResult, implode(' ', $numbers)));
-
         // Base case.
-        $numbersCount = count($numbers);
+        $numbersCount = count($remainingNumbers);
         if ($numbersCount === 0) {
-            return $sumResult;
+            return $equationResult;
         }
 
         // Extract the first next number.
-        $nextNumber = array_shift($numbers);
+        $nextNumber = array_shift($remainingNumbers);
 
         // Try to add the numbers.
-        $this->console->writeln(sprintf('Adding %d + %d', $nextNumber, $sumResult));
-        $sum = $this->calculateNumbersToResult($expectedResult, $nextNumber + $sumResult, $numbers);
+        $this->console->writeln(sprintf('Adding %d + %d', $nextNumber, $equationResult));
+        $sum = $this->calculateNumbersToResult($expectedResult, $nextNumber + $equationResult, $remainingNumbers);
         if ($sum === $expectedResult) {
             return $sum;
         }
 
         // Try to multiply the numbers.
-        $this->console->writeln(sprintf('Multiplying %d * %d', $nextNumber, $sumResult));
-        $product = $this->calculateNumbersToResult($expectedResult, $nextNumber * $sumResult, $numbers);
+        $this->console->writeln(sprintf('Multiplying %d * %d', $nextNumber, $equationResult));
+        $product = $this->calculateNumbersToResult($expectedResult, $nextNumber * $equationResult, $remainingNumbers);
         if ($product === $expectedResult) {
             return $product;
         }
