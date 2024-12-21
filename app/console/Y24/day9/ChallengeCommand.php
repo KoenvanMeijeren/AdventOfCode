@@ -5,8 +5,6 @@ namespace  App\console\Y24\day9;
 use Tempest\Console\Console;
 use Tempest\Console\ConsoleCommand;
 
-ini_set('memory_limit', '8G');
-
 /**
  * Provides the Day1Command.
  */
@@ -30,7 +28,7 @@ final readonly class ChallengeCommand {
         $diskMap = [];
         foreach ($lines as $line) {
             $diskMapLine = $this->buildDiskMapLine($line);
-            $this->console->writeln($diskMapLine);
+            $this->console->writeln('Line: ' . substr($line, 0, 50) . '...');
             $diskMap[] = $diskMapLine;
         }
 
@@ -41,7 +39,7 @@ final readonly class ChallengeCommand {
             $lineGapsCount = substr_count($line, '.');
             $lineLength = strlen($line);
             $cleanedDiskMapLine = $this->cleanupDiskMapLine($line, $lineGapsCount, $lineLength);
-            $this->console->writeln($cleanedDiskMapLine);
+            $this->console->writeln('Line: ' . substr($line, 0, 50) . '...');
             $this->console->writeln();
             $cleanedDiskMap[] = $cleanedDiskMapLine;
         }
@@ -72,67 +70,60 @@ final readonly class ChallengeCommand {
 
     private function cleanupDiskMapLine(string $input, int $gaps, int $inputLength, string $result = ''): string
     {
-        // Base case.
-        if ($gaps < 1) {
-            return $result;
-        }
+        // Initialize the result with the input if it's empty.
+        $result = $result ?: $input;
 
-        // Initialize the result.
-        if (empty($result)) {
-            $result = $input;
-        }
+        while ($gaps > 0) {
+            $lastNumber = '';
+            $lastNumberIndex = 0;
+            $this->console->writeln('Gaps: ' . $gaps);
 
-        // Find the last number.
-        $lastNumber = '';
-        $lastNumberIndex = 0;
-        for ($i = $inputLength - 1; $i >= 0; $i--) {
-            $char = $input[$i];
-            if ($char !== '.') {
-                $lastNumber = $char;
-                $lastNumberIndex = $i;
-                break;
+            // Find the last number.
+            for ($i = $inputLength - 1; $i >= 0; $i--) {
+                $char = $result[$i];
+                if ($char !== '.') {
+                    $lastNumber = $char;
+                    $lastNumberIndex = $i;
+                    break;
+                }
             }
-        }
 
-        // Swap the last number with the first gap char.
-        for ($i = 0; $i < $inputLength; $i++) {
-            $char = $input[$i];
-            if ($char === '.') {
-                $result[$i] = $lastNumber;
-                $result[$lastNumberIndex] = '.';
-                break;
+            // Swap the last number with the first gap char.
+            for ($i = 0; $i < $inputLength; $i++) {
+                $char = $result[$i];
+                if ($char === '.') {
+                    $result[$i] = $lastNumber;
+                    $result[$lastNumberIndex] = '.';
+                    break;
+                }
             }
+
+            // Decrement the gaps counter.
+            $gaps--;
         }
 
-        $this->console->writeln($result);
-        return $this->cleanupDiskMapLine($result, $gaps - 1, $inputLength, $result);
+        return $result;
     }
 
-    private function buildDiskMapLine(string $input, int $id = 0, string $result = '', bool $displayNumber = true): string
+    private function buildDiskMapLine(string $input): string
     {
-        // Base case.
-        $number = $input[0] ?? null;
-        if (is_null($number)) {
-            return $result;
-        }
+        $result = '';
+        $currentId = 0;
+        $currentDisplayNumber = true;
 
-        // Build the disk map.
-        for ($i = 0; $i < $number; $i++) {
-            if ($displayNumber) {
-                $result .= $id;
-                continue;
+        foreach (str_split($input) as $number) {
+            $number = (int) $number;
+            $result .= str_repeat($currentDisplayNumber ? (string) $currentId : '.', $number);
+
+            // Update ID and toggle the display mode.
+            if ($currentDisplayNumber) {
+                $currentId++;
             }
 
-            $result .= '.';
+            $currentDisplayNumber = !$currentDisplayNumber;
         }
 
-        // Prepare for next iteration.
-        $nextId = $id;
-        if ($displayNumber) {
-            $nextId++;
-        }
-
-        return $this->buildDiskMapLine(substr($input, 1), $nextId, $result, !$displayNumber);
+        return $result;
     }
 
 }
