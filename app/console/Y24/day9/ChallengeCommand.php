@@ -22,9 +22,14 @@ final readonly class ChallengeCommand {
     {
         $this->console->writeln('Running AoC Day 9 of 2024...');
 
-        $input = file_get_contents(__DIR__ . '/input.txt');
+        $input = file_get_contents(__DIR__ . '/test-input.txt');
         $lines = explode("\n", $input);
 
+
+    }
+
+    private function oldCode(array $lines): void
+    {
         $diskMap = [];
         foreach ($lines as $line) {
             $diskMapLine = $this->buildDiskMapLine($line);
@@ -38,12 +43,15 @@ final readonly class ChallengeCommand {
         foreach ($diskMap as $line) {
             $lineGapsCount = substr_count($line, '.');
             $lineLength = strlen($line);
-            $cleanedDiskMapLine = $this->cleanupDiskMapLine($line, $lineGapsCount, $lineLength);
             $this->console->writeln('Line: ' . substr($line, 0, 50) . '...');
+            $cleanedDiskMapLine = $this->cleanupDiskMapLine($line, $lineGapsCount, $lineLength);
+            $this->console->writeln('Cleaned line: ' . substr($cleanedDiskMapLine, 0, 50) . '...');
             $this->console->writeln();
             $cleanedDiskMap[] = $cleanedDiskMapLine;
         }
 
+        // answer:  89914538143
+        // correct: 6340197768906
         foreach ($cleanedDiskMap as $line) {
             $result = $this->calculateDiskMapChecksum($line);
 
@@ -56,12 +64,10 @@ final readonly class ChallengeCommand {
     {
         $result = 0;
         $inputLength = strlen($input);
-        $multiplier = 0;
-        for ($i = 0; $i < $inputLength; $i++) {
-            $char = $input[$i];
+        for ($index = 0; $index < $inputLength; $index++) {
+            $char = $input[$index];
             if (is_numeric($char)) {
-                $result += $multiplier * $char;
-                $multiplier++;
+                $result += $index * $char;
             }
         }
 
@@ -73,36 +79,52 @@ final readonly class ChallengeCommand {
         // Initialize the result with the input if it's empty.
         $result = $result ?: $input;
 
-        while ($gaps > 0) {
-            $lastNumber = '';
-            $lastNumberIndex = 0;
-            $this->console->writeln('Gaps: ' . $gaps);
+        // Convert the string to an array for easier manipulation.
+        $resultArray = str_split($result);
 
-            // Find the last number.
+        while ($gaps > 0) {
+            if ($gaps % 10 === 0) {
+                $this->console->writeln('Gaps: ' . $gaps);
+            }
+
+            // Find the last non-gap character.
+            $lastNumberIndex = null;
             for ($i = $inputLength - 1; $i >= 0; $i--) {
-                $char = $result[$i];
-                if ($char !== '.') {
-                    $lastNumber = $char;
+                if ($resultArray[$i] !== '.') {
                     $lastNumberIndex = $i;
                     break;
                 }
             }
 
-            // Swap the last number with the first gap char.
+            // If no more non-gap characters exist, we're done.
+            if ($lastNumberIndex === null) {
+                break;
+            }
+
+            // Find the first gap character.
+            $firstGapIndex = null;
             for ($i = 0; $i < $inputLength; $i++) {
-                $char = $result[$i];
-                if ($char === '.') {
-                    $result[$i] = $lastNumber;
-                    $result[$lastNumberIndex] = '.';
+                if ($resultArray[$i] === '.') {
+                    $firstGapIndex = $i;
                     break;
                 }
             }
+
+            // If no gaps exist, we're done.
+            if ($firstGapIndex === null) {
+                break;
+            }
+
+            // Swap the characters.
+            $resultArray[$firstGapIndex] = $resultArray[$lastNumberIndex];
+            $resultArray[$lastNumberIndex] = '.';
 
             // Decrement the gaps counter.
             $gaps--;
         }
 
-        return $result;
+        // Convert the array back to a string.
+        return implode('', $resultArray);
     }
 
     private function buildDiskMapLine(string $input): string
