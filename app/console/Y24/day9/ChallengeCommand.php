@@ -22,10 +22,29 @@ final readonly class ChallengeCommand {
     {
         $this->console->writeln('Running AoC Day 9 of 2024...');
 
-        $input = file_get_contents(__DIR__ . '/test-input.txt');
-        $lines = explode("\n", $input);
+        $testFilesystem = new Filesystem(
+            __DIR__ . '/test-input.txt',
+            fileDefragementer: new FileDefragementer($this->console),
+        );
+        $testFilesystem->buildDiskMap();
+        $this->console->writeln('Test Disk Map:');
+        $this->console->writeln($testFilesystem->toString());
 
+        $this->console->writeln('Test Disk Map (Defragmented):');
+        $testFilesystem->defragment();
+        $this->console->writeln($testFilesystem->toString());
 
+        $this->console->writeln('Test Disk Map Checksum:');
+        $this->console->writeln($testFilesystem->calculateChecksum());
+
+        $filesystem = new Filesystem(
+            __DIR__ . '/input.txt',
+            fileDefragementer: new FileDefragementer($this->console),
+        );
+        $filesystem->buildDiskMap();
+        $filesystem->defragment();
+        $this->console->writeln('Disk Map Checksum:');
+        $this->console->writeln($filesystem->calculateChecksum());
     }
 
     private function oldCode(array $lines): void
@@ -50,8 +69,6 @@ final readonly class ChallengeCommand {
             $cleanedDiskMap[] = $cleanedDiskMapLine;
         }
 
-        // answer:  89914538143
-        // correct: 6340197768906
         foreach ($cleanedDiskMap as $line) {
             $result = $this->calculateDiskMapChecksum($line);
 
