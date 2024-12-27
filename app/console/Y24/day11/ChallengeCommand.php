@@ -5,8 +5,6 @@ namespace  App\console\Y24\day11;
 use Tempest\Console\Console;
 use Tempest\Console\ConsoleCommand;
 
-ini_set('memory_limit', '1G');
-
 /**
  * Provides the ChallengeCommand.
  */
@@ -25,32 +23,73 @@ final class ChallengeCommand {
     {
         $this->console->writeln('Running AoC Day 11 of 2024...');
 
-        $testInput = file_get_contents(__DIR__ . '/test-input.txt');
-        $input = file_get_contents(__DIR__ . '/input.txt');
+        $testInputContent = file_get_contents(__DIR__ . '/test-input.txt');
+        $testInput = $this->inputToArray($testInputContent);
+        $anotherTestInputContent = '125 17';
+        $anotherTestInput = $this->inputToArray($anotherTestInputContent);
+        $inputContent = file_get_contents(__DIR__ . '/input.txt');
+        $input = $this->inputToArray($inputContent);
 
         $this->console->writeln('Result test: ' .  implode(' ', $this->blink($testInput)[0]));
-        [$result, $count] = $this->blink('125 17');
+        [$result, $count] = $this->blink($anotherTestInput);
         $this->console->writeln('Count: ' . $count . ' Result initial arrangement: ' .  implode(' ', $result));
         [$result, $count] = $this->blink($result);
-        $this->console->writeln('Count: ' . $count . ' Result after 2 blinks: ' .  implode(' ', $result));
-        [$result, $count] = $this->blink($result);
-        $this->console->writeln('Count: ' . $count . ' Result after 3 blinks: ' .  implode(' ', $result));
-        [$result, $count] = $this->blink($result);
-        $this->console->writeln('Count: ' . $count . ' Result after 4 blinks: ' .  implode(' ', $result));
-        [$result, $count] = $this->blink($result);
-        $this->console->writeln('Count: ' . $count . ' Result after 5 blinks: ' .  implode(' ', $result));
-        [$result, $count] = $this->blink($result);
-        $this->console->writeln('Count: ' . $count . ' Result after 6 blinks: ' .  implode(' ', $result));
-
-        $result = $input;
-        $count = 0;
-        $this->console->writeln();
-        for ($i = 0; $i < 25; $i++) {
-            $this->console->writeln('Blink ' . $i);
+        for ($i = 0; $i < 8; $i++) {
+            $this->console->writeln('Count: ' . $count . ' Result after ' . $i . ' blinks: ' .  implode(' ', $result));
             [$result, $count] = $this->blink($result);
         }
 
-        $this->console->writeln('Count: ' . $count . ' result after 25 blinks ');
+        $this->console->writeln();
+        $this->console->writeln('Optimized version - LanternFish solution');
+
+        // First blink for the another test input.
+        $this->console->writeln();
+        $this->console->writeln('Blink 6 times for the another test input');
+        $anotherTestInput = $this->inputToLanternFishArray($anotherTestInput);
+        $this->console->writeln('Count 0 after 0 blinks. Input: ' . implode(' ', array_keys($anotherTestInput)));
+        $result = $this->blinkWithLanternFishSolution($anotherTestInput);
+        $count = array_sum($result);
+        $this->console->writeln('Count ' . $count . ' after ' . 1 . ' blinks. Input: ' . implode(' ', array_keys($result)));
+
+        // Next X blinks for the another test input.
+        for ($i = 1; $i < 6; $i++) {
+            $result = $this->blinkWithLanternFishSolution($result);
+            $count = array_sum($result);
+            $this->console->writeln('Count ' . $count . ' after ' . $i + 1 . ' blinks. Input: ' . implode(' ', array_keys($result)));
+        }
+
+        // Blink 25 times for the input.
+        $this->console->writeln();
+        $this->console->writeln('Blink 25 times for the input.');
+        $input = $this->inputToLanternFishArray($input);
+        $this->console->writeln('Count 0 after 0 blinks. Input: ' . implode(' ', array_keys($input)));
+        for ($i = 0; $i < 25; $i++) {
+            $input = $this->blinkWithLanternFishSolution($input);
+            $count = array_sum($input);
+            $this->console->writeln('Count ' . $count . ' after ' . $i + 1 . ' blinks.');
+        }
+
+        // Blink 75 times for the input.
+        $this->console->writeln();
+        $this->console->writeln('Blink 75 times for the input.');
+        $input = $this->inputToArray($inputContent);
+        $input = $this->inputToLanternFishArray($input);
+        $this->console->writeln('Count 0 after 0 blinks. Input: ' . implode(' ', array_keys($input)));
+        for ($i = 0; $i < 75; $i++) {
+            $input = $this->blinkWithLanternFishSolution($input);
+            $count = array_sum($input);
+            $this->console->writeln('Count ' . $count . ' after ' . $i + 1 . ' blinks.');
+        }
+
+//        $result = $input;
+//        $count = 0;
+//        $this->console->writeln();
+//        for ($i = 0; $i < 25; $i++) {
+//            $this->console->writeln('Blink ' . $i);
+//            [$result, $count] = $this->blink($result);
+//        }
+//
+//        $this->console->writeln('Count: ' . $count . ' result after 25 blinks ');
 
 //        $result = $input;
 //        $count = 0;
@@ -89,26 +128,36 @@ final class ChallengeCommand {
 //
 //        $this->console->writeln('Count: ' . $this->countDigitGroups($result) . ' result after ' . $part2Blinks . ' blinks ');
 
-        $this->console->writeln();
-        $this->console->writeln('Optimized version part 2 - With recursion');
-        $part3Blinks = 35;
-        $count = 0;
-        $result = $input;
-        for ($i = 0; $i < $part3Blinks; $i++) {
-            $this->console->writeln('Blink ' . $i);
-            $result = $this->blinkOptimizedRecursive($result);
-        }
-
-        $this->console->writeln('Count: ' . $count . ' result after ' . $part3Blinks . ' blinks ');
+//        $this->console->writeln();
+//        $this->console->writeln('Optimized version part 2 - With recursion');
+//        $part3Blinks = 35;
+//        $count = 0;
+//        $result = $input;
+//        for ($i = 0; $i < $part3Blinks; $i++) {
+//            $this->console->writeln('Blink ' . $i);
+//            $result = $this->blinkOptimizedRecursive($result);
+//        }
+//
+//        $this->console->writeln('Count: ' . $count . ' result after ' . $part3Blinks . ' blinks ');
     }
 
-    private function blink(string|array $input): array
+    private function inputToArray(string $input): array
     {
-        $digitGroups = $input;
-        if (is_string($digitGroups)) {
-            $digitGroups = explode(" ", $input);
+        return explode(" ", $input);
+    }
+
+    private function inputToLanternFishArray(array $input): array
+    {
+        $result = [];
+        foreach ($input as $item) {
+            $result[$item] = 1;
         }
 
+        return $result;
+    }
+
+    private function blink(array $digitGroups): array
+    {
         $result = [];
         foreach ($digitGroups as  $digitGroup) {
             $newResult = $this->blinkDigit((int) $digitGroup);
@@ -118,6 +167,21 @@ final class ChallengeCommand {
         }
 
         return [$result, count($result)];
+    }
+
+    private function blinkWithLanternFishSolution(array $digitGroups): array
+    {
+        $result = [];
+        foreach ($digitGroups as $digitGroup => $count) {
+            $newResult = $this->blinkDigit((int) $digitGroup);
+            foreach ($newResult as $newDigit) {
+                // Increment the count for each new digit
+                $result[$newDigit] ??= 0;
+                $result[$newDigit] += $count;
+            }
+        }
+
+        return $result;
     }
 
     private function blinkDigit(int $input): array
@@ -241,7 +305,7 @@ final class ChallengeCommand {
             return $left . ' ' . $right;
         }
 
-        //If none of the other rules apply, the stone is replaced by a new stone;
+        // If none of the other rules apply, the stone is replaced by a new stone;
         // the old stone's number multiplied by 2024 is engraved on the new stone.
         return (string) $input * 2024;
     }
