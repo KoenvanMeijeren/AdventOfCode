@@ -52,9 +52,9 @@ final class Filesystem {
         return $sum;
     }
 
-    public function defragment(): void
+    public function defragment(bool $debug = false): void
     {
-        $this->fileDefragementer->defragment($this);
+        $this->fileDefragementer->defragment($this, $debug);
     }
 
     /**

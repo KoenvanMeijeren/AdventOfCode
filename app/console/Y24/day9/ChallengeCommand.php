@@ -22,6 +22,7 @@ final readonly class ChallengeCommand {
     {
         $this->console->writeln('Running AoC Day 9 of 2024...');
 
+        // Test input.
         $testFilesystem = new Filesystem(
             __DIR__ . '/test-input.txt',
             fileDefragementer: new FileDefragementer($this->console),
@@ -31,12 +32,29 @@ final readonly class ChallengeCommand {
         $this->console->writeln($testFilesystem->toString());
 
         $this->console->writeln('Test Disk Map (Defragmented):');
-        $testFilesystem->defragment();
+        $testFilesystem->defragment(debug: true);
         $this->console->writeln($testFilesystem->toString());
 
         $this->console->writeln('Test Disk Map Checksum:');
         $this->console->writeln($testFilesystem->calculateChecksum());
 
+        // Test input part 2.
+        $this->console->writeln();
+        $this->console->writeln('Running Part 2...');
+        $testFilesystemPart2 = new Filesystem(
+            __DIR__ . '/test-input.txt',
+            fileDefragementer: new FileDefragementer($this->console),
+        );
+        $testFilesystemPart2->buildDiskMap();
+
+        $this->console->writeln('Test Disk Map:');
+        $this->console->writeln($testFilesystemPart2->toString());
+
+        $this->console->writeln('Test Disk Map (Defragmented):');
+        $testFilesystemPart2->defragment(debug: true);
+        $this->console->writeln($testFilesystemPart2->toString());
+
+        // Real input.
         $filesystem = new Filesystem(
             __DIR__ . '/input.txt',
             fileDefragementer: new FileDefragementer($this->console),

@@ -7,6 +7,6 @@ namespace App\console\Y24\day9;
  */
 interface FileDefragementerInterface {
 
-    public function defragment(Filesystem $filesystem): void;
+    public function defragment(Filesystem $filesystem, bool $debug = false): void;
 
 }

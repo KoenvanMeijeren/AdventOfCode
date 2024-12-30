@@ -35,15 +35,13 @@ final readonly class FileDefragementer implements FileDefragementerInterface
         return false;
     }
 
-    public function defragment(Filesystem $filesystem): void
+    public function defragment(Filesystem $filesystem, bool $debug = false): void
     {
         $free = $filesystem->getFreeSpaces();
         $files = $filesystem->getFiles();
 
         $iterations = 0;
         while (!empty($free) && $this->hasGaps($filesystem)) {
-            $this->console->writeln('Defragmenting... ' . ++$iterations);
-
             // Find the first free space.
             $freeData = reset($free);
             $freeIdx = key($free);
@@ -57,6 +55,12 @@ final readonly class FileDefragementer implements FileDefragementerInterface
             // Swap the file and free space.
             $filesystem->setSector($freeIdx, $fileData);
             $filesystem->setSector($fileIdx, $freeData);
+
+            if ($debug) {
+                $this->console->writeln($filesystem->toString());
+            } else {
+                $this->console->writeln('Defragmenting... ' . ++$iterations);
+            }
         }
     }
 
