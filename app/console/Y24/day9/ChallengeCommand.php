@@ -35,6 +35,7 @@ final readonly class ChallengeCommand {
         $testFilesystem->defragment(debug: true);
         $this->console->writeln($testFilesystem->toString());
 
+        $this->console->writeln();
         $this->console->writeln('Test Disk Map Checksum:');
         $this->console->writeln($testFilesystem->calculateChecksum());
 
@@ -43,7 +44,7 @@ final readonly class ChallengeCommand {
         $this->console->writeln('Running Part 2...');
         $testFilesystemPart2 = new Filesystem(
             __DIR__ . '/test-input.txt',
-            fileDefragementer: new FileDefragementer($this->console),
+            fileDefragementer: new FileBlocksDefragementer($this->console),
         );
         $testFilesystemPart2->buildDiskMap();
 
@@ -54,13 +55,29 @@ final readonly class ChallengeCommand {
         $testFilesystemPart2->defragment(debug: true);
         $this->console->writeln($testFilesystemPart2->toString());
 
+        $this->console->writeln();
+        $this->console->writeln('Test Disk Map Checksum:');
+        $this->console->writeln($testFilesystemPart2->calculateChecksum());
+
         // Real input.
+        // Uncomment for part 1.
+//        $filesystem = new Filesystem(
+//            __DIR__ . '/input.txt',
+//            fileDefragementer: new FileDefragementer($this->console),
+//        );
+//        $filesystem->buildDiskMap();
+//        $filesystem->defragment();
+//        $this->console->writeln('Disk Map Checksum:');
+//        $this->console->writeln($filesystem->calculateChecksum());
+
+        // Uncomment for part 2.
         $filesystem = new Filesystem(
             __DIR__ . '/input.txt',
-            fileDefragementer: new FileDefragementer($this->console),
+            fileDefragementer: new FileBlocksDefragementer($this->console),
         );
         $filesystem->buildDiskMap();
         $filesystem->defragment();
+        $this->console->writeln();
         $this->console->writeln('Disk Map Checksum:');
         $this->console->writeln($filesystem->calculateChecksum());
     }
