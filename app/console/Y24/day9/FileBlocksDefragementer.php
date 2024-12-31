@@ -11,69 +11,81 @@ final readonly class FileBlocksDefragementer implements FileDefragementerInterfa
         private Console $console,
     ) {}
 
-    public function getFreeGapBlocks(Filesystem $filesystem): array
+    public function defragment(Filesystem $filesystem, bool $debug = false): void
     {
-        $result = [];
-        $count = $filesystem->count();
-        for ($i = 0; $i < $count - 1; $i++) {
-            $file = $filesystem->getSector($i);
-            if (!$file instanceof File) {
-                continue;
-            }
-
-            $gaps = $this->getNextFreeGaps($filesystem, $i + 1);
-            if (count($gaps) > 1) {
-                $result[] = [
-                    'file' => $file,
-                    'fileIndex' => $i,
-                    'gaps' => $gaps
-                ];
-            }
+        $free = $filesystem->getFreeSpaces();
+        $files = $filesystem->getFiles();
+        if (empty($free) || empty($files)) {
+            return;
         }
 
-        return $result;
-    }
+        $fileBlocks = $this->getFileBlocks($filesystem);
+        // Sort the file blocks by block id in descending order.
+        usort($fileBlocks, static fn($a, $b) => $b['blockId'] <=> $a['blockId']);
 
-    public function getNextFreeGaps(Filesystem $filesystem, int $startIdx): array
-    {
-        $result = [];
-        $count = $filesystem->count();
-        for ($i = $startIdx; $i < $count - 1; $i++) {
-            $nextFile = $filesystem->getSector($i);
-            if ($nextFile instanceof FreeSpace) {
-                $result[] = [
-                    'index' => $i,
-                    'free' => $nextFile,
-                ];
-                continue;
+        $iterations = 0;
+        foreach ($fileBlocks as $fileBlock) {
+            $files = $fileBlock['files'];
+            $firstFileIndex = $fileBlock['startIndex'];
+            $filesCount = count($files);
+            $filesAdded = 0;
+
+            for ($searchIndex = 0; $searchIndex < $firstFileIndex; $searchIndex++) {
+                if ($filesAdded >= $filesCount) {
+                    break;
+                }
+
+                $maxIndex = $searchIndex + $filesCount;
+                if (!$this->isFreeSpace($filesystem, $searchIndex, $maxIndex)) {
+                    continue;
+                }
+
+                foreach ($files as $file) {
+                    $fileIndex = $file['index'];
+                    $fileData = $file['file'];
+                    $freeSpace = $filesystem->getSector($searchIndex);
+                    if (!$freeSpace instanceof FreeSpace) {
+                        continue;
+                    }
+
+                    // Swap the file and free space.
+                    $filesystem->setSector($searchIndex, $fileData);
+                    $filesystem->setSector($fileIndex, $freeSpace);
+
+                    // Update the indexes and files added.
+                    $searchIndex++;
+                    $filesAdded++;
+                }
             }
 
-            break;
+            if ($debug) {
+                $this->console->writeln($filesystem->toString());
+            } else {
+                $this->console->writeln('Defragmenting... ' . ++$iterations);
+            }
         }
-
-        return $result;
     }
 
     public function getFileBlocks(Filesystem $filesystem): array
     {
         $result = [];
-        $processedIds = [];
+        $processed = [];
 
-        $count = $filesystem->count();
-        for ($i = 0; $i < $count - 1; $i++) {
-            $file = $filesystem->getSector($i);
-            if (!$file instanceof File || isset($processedIds[$file->id])) {
+        $filesCount = $filesystem->count();
+        for ($searchIndex = 0; $searchIndex < $filesCount; $searchIndex++) {
+            $file = $filesystem->getSector($searchIndex);
+            if (!$file instanceof File || isset($processed[$file->id])) {
                 continue;
             }
 
             // Mark the file id as processed.
-            $processedIds[$file->id] = true;
+            $processed[$file->id] = true;
 
-            $fileBlocks = $this->getFileBlock($filesystem, $file, $i + 1);
+            $fileBlocks = $this->getMatchingFiles($filesystem, $file, $searchIndex + 1);
             if ($fileBlocks !== []) {
                 $result[] = [
                     'blockId' => $file->id,
-                    'startIndex' => $i,
+                    'startIndex' => $searchIndex,
                     'files' => $fileBlocks
                 ];
             }
@@ -82,21 +94,21 @@ final readonly class FileBlocksDefragementer implements FileDefragementerInterfa
         return $result;
     }
 
-    public function getFileBlock(Filesystem $filesystem, File $file, int $startIdx): array
+    public function getMatchingFiles(Filesystem $filesystem, File $file, int $startIndex): array
     {
         $result = [];
         $result[] = [
-            'index' => $startIdx - 1,
+            'index' => $startIndex - 1,
             'id' => $file->id,
             'file' => $file,
         ];
 
-        $count = $filesystem->count();
-        for ($i = $startIdx; $i < $count; $i++) {
-            $nextFile = $filesystem->getSector($i);
+        $filesCount = $filesystem->count();
+        for ($searchIndex = $startIndex; $searchIndex < $filesCount; $searchIndex++) {
+            $nextFile = $filesystem->getSector($searchIndex);
             if ($nextFile instanceof File && $file->id === $nextFile->id) {
                 $result[] = [
-                    'index' => $i,
+                    'index' => $searchIndex,
                     'id' => $file->id,
                     'file' => $nextFile,
                 ];
@@ -109,92 +121,15 @@ final readonly class FileBlocksDefragementer implements FileDefragementerInterfa
         return $result;
     }
 
-    public function defragment(Filesystem $filesystem, bool $debug = false): void
+    private function isFreeSpace(Filesystem $filesystem, int $startIndex, int $endIndex): bool
     {
-        $free = $filesystem->getFreeSpaces();
-        $files = $filesystem->getFiles();
-        if (empty($free) || empty($files)) {
-            return;
-        }
-
-        $freeGapBlocks = $this->getFreeGapBlocks($filesystem);
-        $fileBlocks = $this->getFileBlocks($filesystem);
-        // Sort the file blocks by block id in descending order.
-        usort($fileBlocks, static fn($a, $b) => $b['blockId'] <=> $a['blockId']);
-
-        $iterations = 0;
-        $areFreeGapsBlocksUpdated = true;
-        while ($areFreeGapsBlocksUpdated) {
-            // Mark as false to start the loop.
-            $areFreeGapsBlocksUpdated = false;
-
-            foreach ($freeGapBlocks as $freeGapBlockIndex => $freeGapBlock) {
-                $gaps = $freeGapBlock['gaps'];
-                $fileBlock = $this->getFileBlockToFillGap($fileBlocks, $freeGapBlock);
-                if ($fileBlock === []) {
-                    continue;
-                }
-
-                $fileBlockIndex = $fileBlock['index'];
-                unset($fileBlocks[$fileBlockIndex]);
-                $todoFiles = $fileBlock['files'];
-
-                foreach ($gaps as $index => $gap) {
-                    $gapIndex = $gap['index'];
-                    $gapFile = $gap['free'];
-
-                    // Extract the last file from the remaining files.
-                    $todoFileBlock = end($todoFiles);
-                    if (!$todoFileBlock) {
-                        break;
-                    }
-
-                    // Remove the gap from the list.
-                    unset($freeGapBlocks[$freeGapBlockIndex]['gaps'][$index]);
-
-                    // Mark as updated and reloop through the behavior.
-                    $areFreeGapsBlocksUpdated = true;
-
-                    // Unset file from the list.
-                    $todoFileIndex = key($todoFiles);
-                    unset($todoFiles[$todoFileIndex]);
-
-                    // Extract data.
-                    $fileData = $todoFileBlock['file'];
-                    $filesystemIndex = $todoFileBlock['index'];
-
-                    // Swap the file and free space.
-                    $filesystem->setSector($gapIndex, $fileData);
-                    $filesystem->setSector($filesystemIndex, $gapFile);
-                }
-
-                if ($debug) {
-                    $this->console->writeln($filesystem->toString());
-                } else {
-                    $this->console->writeln('Defragmenting... ' . ++$iterations);
-                }
-            }
-        }
-    }
-
-    private function getFileBlockToFillGap(array $fileBlocks, array $freeGapBlock): array
-    {
-        $result = [];
-        $gapCount = count($freeGapBlock['gaps']);
-        foreach ($fileBlocks as $index => $fileBlock) {
-            $files = $fileBlock['files'];
-            $fileCount = count($files);
-            // If files count is lower than gap count, allow.
-            if ($fileCount <= $gapCount) {
-                $result = [
-                    'index' => $index,
-                    'files' => $files
-                ];
-                break;
+        for ($sector = $startIndex; $sector < $endIndex; $sector++) {
+            if ($filesystem->getSector($sector) instanceof File) {
+                return false;
             }
         }
 
-        return $result;
+        return true;
     }
 
 }

@@ -71,15 +71,15 @@ final readonly class ChallengeCommand {
 //        $this->console->writeln($filesystem->calculateChecksum());
 
         // Uncomment for part 2.
-        $filesystem = new Filesystem(
-            __DIR__ . '/input.txt',
-            fileDefragementer: new FileBlocksDefragementer($this->console),
-        );
-        $filesystem->buildDiskMap();
-        $filesystem->defragment();
-        $this->console->writeln();
-        $this->console->writeln('Disk Map Checksum:');
-        $this->console->writeln($filesystem->calculateChecksum());
+//        $filesystem = new Filesystem(
+//            __DIR__ . '/input.txt',
+//            fileDefragementer: new FileBlocksDefragementer($this->console),
+//        );
+//        $filesystem->buildDiskMap();
+//        $filesystem->defragment();
+//        $this->console->writeln();
+//        $this->console->writeln('Disk Map Checksum:');
+//        $this->console->writeln($filesystem->calculateChecksum());
     }
 
     private function oldCode(array $lines): void
