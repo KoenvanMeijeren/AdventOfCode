@@ -37,7 +37,17 @@ final class Grid implements IGrid {
 
     public function isOutOfBounds(int $row, int $col): bool
     {
-        return $row < 0 || $row >= $this->rows || $col < 0 || $col >= $this->cols;
+        return $this->isRowOutOfBounds($row) || $this->isColOutOfBounds($col);
+    }
+
+    public function isRowOutOfBounds(int $row): bool
+    {
+        return $row < 0 || $row >= $this->rows;
+    }
+
+    public function isColOutOfBounds(int $col): bool
+    {
+        return $col < 0 || $col >= $this->cols;
     }
 
     public function render(): string

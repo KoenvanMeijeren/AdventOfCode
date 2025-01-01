@@ -17,4 +17,8 @@ interface IGrid extends IRenderable {
 
     public function isOutOfBounds(int $row, int $col): bool;
 
+    public function isRowOutOfBounds(int $row): bool;
+
+    public function isColOutOfBounds(int $col): bool;
+
 }
