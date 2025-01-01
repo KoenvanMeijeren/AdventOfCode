@@ -40,6 +40,7 @@ final class Game implements IGame {
             $lines
         ));
         $this->initialGrid = clone $this->grid;
+        $this->guard->init($this->grid);
     }
 
     public function tick(): void
@@ -57,6 +58,7 @@ final class Game implements IGame {
     {
         $this->guard->resetPositionalData();
         $this->grid = clone $this->initialGrid;
+        $this->guard->init($this->grid);
     }
 
     public function render(): void
