@@ -43,6 +43,11 @@ final class Guard implements IPlayer {
         );
     }
 
+    public function init(IGrid $grid): void
+    {
+        $grid->setTile($this->position->row, $this->position->col, new GridPlayerTile($this->position, $this->render()));
+    }
+
     public function move(IGrid $grid): void
     {
         $previousPosition = $this->position;

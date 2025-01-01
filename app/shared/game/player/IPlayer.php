@@ -10,6 +10,8 @@ use App\shared\game\grid\IGridTile;
  */
 interface IPlayer extends IGridTile {
 
+    public function init(IGrid $grid): void;
+
     public function move(IGrid $grid): void;
 
 }
