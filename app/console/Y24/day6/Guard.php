@@ -2,9 +2,10 @@
 
 namespace App\console\Y24\day6;
 
-use App\shared\game\grid\GridObstacleTile;
+use App\shared\game\grid\GridPlayerTile;
 use App\shared\game\grid\GridTile;
 use App\shared\game\grid\IGrid;
+use App\shared\game\grid\IGridObstacleTile;
 use App\shared\game\player\IPlayer;
 use App\shared\game\player\PlayerOutOfBoundsException;
 use App\shared\game\player\PlayerVelocity;
@@ -55,7 +56,7 @@ final class Guard implements IPlayer {
         // Move the player to the next position and avoid obstacles.
         $nextPosition = $this->position->move($grid, $this->playerVelocity->rowSpeed, $this->playerVelocity->colSpeed);
         $nextTile = $grid->getTile($nextPosition->row, $nextPosition->col);
-        while($nextTile instanceof GridObstacleTile) {
+        while($nextTile instanceof IGridObstacleTile) {
             $nextPositionKey = $nextPosition->render();
             if (isset($this->turnedAtTiles[$nextPositionKey])
                 && $this->turnedAtTiles[$nextPositionKey] >= 3) {
@@ -76,7 +77,9 @@ final class Guard implements IPlayer {
             throw new PlayerOutOfBoundsException($nextPosition->row, $nextPosition->col);
         }
 
+        // Construct the new tiles.
         $visitedTile = new GridTile($this->position, 'X');
+        $playerTile = new GridPlayerTile($nextPosition, $this->render());
 
         // Swap the tiles.
         $this->position = $nextPosition;

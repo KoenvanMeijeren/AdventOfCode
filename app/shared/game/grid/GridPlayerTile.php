@@ -7,7 +7,7 @@ use App\shared\game\position\Position;
 /**
  * Provides the GridTile.
  */
-final readonly class GridObstacleTile implements IGridObstacleTile {
+final readonly class GridPlayerTile implements IGridTile {
 
     public function __construct(
         public Position $position,
