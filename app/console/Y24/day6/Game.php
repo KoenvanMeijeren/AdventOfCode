@@ -53,6 +53,12 @@ final class Game implements IGame {
         $this->render();
     }
 
+    public function reset(): void
+    {
+        $this->guard->resetPositionalData();
+        $this->grid = clone $this->initialGrid;
+    }
+
     public function render(): void
     {
         $this->console->writeln($this->grid->render());

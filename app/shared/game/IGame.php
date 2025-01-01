@@ -18,6 +18,11 @@ interface IGame {
     public function tickAndRender(): void;
 
     /**
+     * Resets the game state.
+     */
+    public function reset(): void;
+
+    /**
      * Renders the game state.
      */
     public function render(): void;
