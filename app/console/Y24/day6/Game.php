@@ -15,8 +15,9 @@ use Tempest\Console\Console;
  */
 final class Game implements IGame {
 
-    private IGrid $grid;
-    private Guard $guard;
+    private IGrid $initialGrid;
+    public IGrid $grid;
+    public Guard $guard;
 
     public function __construct(
         private readonly Console $console,
@@ -38,6 +39,7 @@ final class Game implements IGame {
             array_keys($lines = explode("\n", $input)),
             $lines
         ));
+        $this->initialGrid = clone $this->grid;
     }
 
     public function tick(): void
@@ -56,9 +58,14 @@ final class Game implements IGame {
         $this->console->writeln($this->grid->render());
     }
 
-    public function getUniqueVisitedTilesCount(): int
+    public function getVisitedTilesCount(): int
     {
-        return $this->guard->getUniqueVisitedTilesCount();
+        return $this->guard->getVisitedTilesCount();
+    }
+
+    public function getStuckAtPositionsCount(): int
+    {
+        return $this->guard->getStuckAtPositionsCount();
     }
 
     private function initGuard(int $row, int $col): Guard

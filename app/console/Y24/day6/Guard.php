@@ -17,12 +17,20 @@ use App\shared\game\position\Position;
  */
 final class Guard implements IPlayer {
 
+    private Position $initialPosition;
+    private PlayerDirection $initialDirection;
+
     public function __construct(
         public Position $position,
         public PlayerDirection $direction,
         public PlayerVelocity $playerVelocity,
         public array $visitedTiles = [],
-    ) {}
+        public array $turnedAtTiles = [],
+        public array $stuckAtPositions = [],
+    ) {
+        $this->initialPosition = $position;
+        $this->initialDirection = $direction;
+    }
 
     public static function fromGridValues(int $row, int $col, Direction $defaultDirection): self
     {
@@ -47,13 +55,17 @@ final class Guard implements IPlayer {
         // Move the player to the next position and avoid obstacles.
         $nextPosition = $this->position->move($grid, $this->playerVelocity->rowSpeed, $this->playerVelocity->colSpeed);
         $nextTile = $grid->getTile($nextPosition->row, $nextPosition->col);
-        $tries = 0;
         while($nextTile instanceof GridObstacleTile) {
-            if ($tries > 10) {
-                throw new \Exception('Cannot find a valid path. Guard is stuck.');
+            $nextPositionKey = $nextPosition->render();
+            if (isset($this->turnedAtTiles[$nextPositionKey])
+                && $this->turnedAtTiles[$nextPositionKey] >= 3) {
+                throw new GuardIsStuckException();
             }
 
-            $tries++;
+            // Mark the next position as turned at.
+            $this->turnedAtTiles[$nextPositionKey] ??= 0;
+            $this->turnedAtTiles[$nextPositionKey]++;
+
             $this->direction = $this->direction->turnCompleteRight();
             $this->playerVelocity = PlayerVelocity::fromPlayerDirection($this->direction);
             $nextPosition = $this->position->move($grid, $this->playerVelocity->rowSpeed, $this->playerVelocity->colSpeed);
@@ -83,9 +95,23 @@ final class Guard implements IPlayer {
         };
     }
 
-    public function getUniqueVisitedTilesCount(): int
+    public function getVisitedTilesCount(): int
     {
         return count($this->visitedTiles);
+    }
+
+    public function getStuckAtPositionsCount(): int
+    {
+        return count($this->stuckAtPositions);
+    }
+
+    public function resetPositionalData(): void
+    {
+        $this->position = clone $this->initialPosition;
+        $this->direction = clone $this->initialDirection;
+        $this->playerVelocity = PlayerVelocity::fromPlayerDirection($this->direction);
+        $this->visitedTiles = [];
+        $this->turnedAtTiles = [];
     }
 
 }

@@ -60,7 +60,7 @@ final readonly class ChallengeCommand {
         $game->render();
 
         $this->console->writeln();
-        $this->console->writeln('Part 1 result: ' . $game->getUniqueVisitedTilesCount());
+        $this->console->writeln('Part 1 result: ' . $game->getVisitedTilesCount());
     }
 
 }
