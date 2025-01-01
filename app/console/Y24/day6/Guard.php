@@ -74,6 +74,7 @@ final class Guard implements IPlayer {
 
             $this->direction = $this->direction->turnCompleteRight();
             $this->playerVelocity = PlayerVelocity::fromPlayerDirection($this->direction);
+            // Buggy behavior, but cannot fix it.
             $nextPosition = $this->position->move($grid, $this->playerVelocity->rowSpeed, $this->playerVelocity->colSpeed);
             $nextTile = $grid->getTile($nextPosition->row, $nextPosition->col);
         }
