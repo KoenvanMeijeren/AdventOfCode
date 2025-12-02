@@ -25,8 +25,7 @@ final class ChallengeCommand {
     )]
     public function __invoke(): void
     {
-        ray()->clearAll();
-        $this->console->writeln('Running AoC Day 1 of 2054...');
+        $this->console->writeln('Running AoC Day 1 of 2025...');
 
         // Test cases.
         $this->console->writeln($this->dial(11, 'R8')); // 19
