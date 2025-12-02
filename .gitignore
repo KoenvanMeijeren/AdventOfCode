@@ -7,3 +7,5 @@ vendor/
 .env
 .idea
 log
+**/input.txt
+**/test-input.txt

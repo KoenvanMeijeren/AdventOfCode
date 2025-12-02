@@ -11,6 +11,7 @@ use Tempest\Console\ConsoleCommand;
 final class ChallengeCommand {
 
     private int $solutionPart1 = 0;
+    private int $solutionPart2 = 0;
 
     public function __construct(
         private readonly Console $console,
@@ -48,6 +49,7 @@ final class ChallengeCommand {
 
         $this->console->writeln();
         $this->console->writeln("Solution part 1: {$this->solutionPart1}");
+        $this->console->writeln("Solution part 2: {$this->solutionPart2}");
     }
 
     private function getInvalidIdsCount(int $start, int $end): int
