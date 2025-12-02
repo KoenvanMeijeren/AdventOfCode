@@ -41,9 +41,11 @@ final class ChallengeCommand {
                 $start = (int) $ids[0];
                 $end = (int) $ids[1];
                 $invalidIdsCount = $this->getInvalidIdsCount($start, $end);
+                $invalidIdsCount2 = $this->getInvalidIdsCountPart2($start, $end);
 
                 $this->console->writeln("Start: {$start}, End: {$end}");
                 $this->console->writeln("   -> Invalid ids count: {$invalidIdsCount}");
+                $this->console->writeln("   -> Invalid ids count part 2: {$invalidIdsCount2}");
             }
         }
 
@@ -65,10 +67,34 @@ final class ChallengeCommand {
         return $result;
     }
 
+    private function getInvalidIdsCountPart2(int $start, int $end): int
+    {
+        $result = 0;
+        for ($i = $start; $i <= $end; $i++) {
+            $isRepeating = $this->isRepeatingId((string) $i);
+            $isSequence = $this->isRepeatingSequenceId((string) $i);
+
+            if ($isRepeating || $isSequence) {
+                $result++;
+                $this->solutionPart1 += $i;
+                if ($isSequence) {
+                    $this->solutionPart2 += $i;
+                }
+            }
+        }
+
+        return $result;
+    }
+
     private function isRepeatingId(string $value): bool
     {
         $splitInHalf = str_split($value, (int) round(strlen($value) / 2));
         return ($splitInHalf[0] ?? null) === ($splitInHalf[1] ?? null);
+    }
+
+    private function isRepeatingSequenceId(string $value): bool
+    {
+        return preg_match('/^(.+)\1+$/', $value);
     }
 
 }
